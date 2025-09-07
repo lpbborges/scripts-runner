@@ -5,6 +5,7 @@ import { fileURLToPath } from "url";
 import { runScript } from "./utils/run-script.ts";
 import { askArgs } from "./tui/ask-args.ts";
 import { getJsDocParams } from "./utils/get-js-doc-params.ts";
+import chalk from "chalk";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -113,16 +114,18 @@ async function main() {
       });
     }
 
-    for (const script of scriptsMap.values()) {
+    for (const [scriptKey, values] of scriptsMap.entries()) {
       try {
-        logBox.log(`\n▶ Running ${script.scriptPath}...\n`);
-        await runScript(script.scriptPath, script.args);
+        logBox.log(`\n▶ Running ${scriptKey}...\n`);
+        await runScript(values.scriptPath, values.args, (msg) =>
+          logBox.log(msg),
+        );
       } catch (err) {
-        if (err instanceof Error) logBox.log(err.message);
+        if (err instanceof Error) logBox.log(chalk.red(err.message));
       }
     }
 
-    logBox.log("\n✅ Done.");
+    logBox.log(chalk.green("\n✅ Done."));
   });
 
   // Quit with q or Ctrl+C
