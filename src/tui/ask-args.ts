@@ -40,21 +40,35 @@ export function askArgs(
         height: 1,
         inputOnFocus: true,
         keys: true,
-        vi: false,
+        vi: true,
         style: { bg: "black", fg: "white" },
+      });
+
+      input.key("enter", () => {
+        form.submit();
+      });
+
+      input.key("escape", () => {
+        form.cancel();
       });
 
       inputs.push(input);
     });
 
-    const firstInput = inputs[0];
-    if (firstInput) firstInput.focus();
+    form.focusNext();
 
-    form.key("enter", () => {
+    form.on("submit", () => {
       const values: string[] = inputs.map((input) => input.getValue());
+
       form.destroy();
       screen.render();
       resolve(values);
+    });
+
+    form.on("cancel", () => {
+      form.destroy();
+      screen.render();
+      resolve([]);
     });
 
     screen.render();
